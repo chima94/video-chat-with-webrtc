@@ -2,9 +2,27 @@
 import * as constants from './constant.js'
 import * as element from './element.js'
 
+
 export const updatePersonalCode = (personalCode) =>{
     const personalCodeParagraph = document.getElementById('personal_code_paragraph')
     personalCodeParagraph.innerHTML = personalCode
+}
+
+
+
+export const updateLocalVideo = (stream) =>{
+    const localVideo = document.getElementById("local_video")
+    localVideo.srcObject = stream
+
+    localVideo.addEventListener('loadedmetadata', () =>{
+        localVideo.play()
+    })
+}
+
+
+export const updateRemoteVideo = (stream) =>{
+    const remoteVideo = document.getElementById('remote_video')
+    remoteVideo.srcObject = stream
 }
 
 

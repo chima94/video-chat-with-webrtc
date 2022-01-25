@@ -8,6 +8,8 @@ import { getIncomingCallDialog } from './element.js'
 const socket = io("/");
 wss.registerSocketEvents(socket)
 
+webrtcHandler.getLocalPreview()
+
 const personalCodeCopyButton = document.getElementById('personal_code_copy_button')
 const personalCodeChatButton = document.getElementById('personal_code_chat_button')
 const personalCodeVideoButton = document.getElementById('personal_code_video_button')
