@@ -36,10 +36,15 @@ export const getLocalPreview = () =>{
 
 const createPeerConnection = () =>{
     peerConnection = new RTCPeerConnection(configuration)
-    console.log("getting ice candidate from stun server")
+
 
     peerConnection.onicecandidate = (event) =>{
         if(event.candidate){
+            wss.sendDataUsingWebRTCSignalling({
+                connectedUserSocketId: connectedUserDetails.socketId,
+                type: constants.webRTCSignaling.ICE_CANDIDATE,
+                candidate: event.candidate
+            })
 
         }
     }
@@ -171,7 +176,74 @@ const sendWebRTCOffer = async () =>{
 }
 
 
-export const handleWebRTCOffer = (data) =>{
-    console.log('webRTC offer came')
-    console.log(data)
+export const handleWebRTCOffer = async (data) =>{
+    await peerConnection.setRemoteDescription(data.offer)
+    const answer = await peerConnection.createAnswer()
+    await peerConnection.setLocalDescription(answer)
+    wss.sendDataUsingWebRTCSignalling({
+        connectedUserSocketId: connectedUserDetails.socketId,
+        type: constants.webRTCSignaling.ANSWER,
+        answer: answer
+    })
+}
+
+
+export const handleWebRTCAnswer = async (data) =>{
+    await peerConnection.setRemoteDescription(data.answer)
+}
+
+
+
+
+export const handleWebRTCCandidate = async (data) =>{
+    console.log("handling webrtc candidate")
+    try{
+       await peerConnection.addIceCandidate(data.candidate) 
+    }catch(err){
+        console.error("error occured when trying to add and receive candidate", err)
+    }
+}
+
+
+let screenSharingStream
+
+export const switchBetweenCameraAndScreenSharing = async (screenSharingActive) =>{
+    if(screenSharingActive){
+        console.log("switching back to normal")
+        const localStream = store.getState().localStream
+        const senders = peerConnection.getSenders()
+
+        const sender = senders.find((sender) =>
+        sender.track.kind === localStream.getVideoTracks()[0].kind
+    )
+
+    if(sender){
+        sender.replaceTrack(localStream.getVideoTracks()[0])
+    }
+    store.getState().screenSharingStream.getTracks().forEach((track) => track.stop())
+    store.setScreenSharingActive(!screenSharingActive)
+    ui.updateLocalVideo(localStream)
+
+    }else{
+       console.log("switching for sharing")
+       try {
+           screenSharingStream = await navigator.mediaDevices.getDisplayMedia({
+               video: true
+           })
+           store.setScreenSharingStream(screenSharingStream)
+           const senders = peerConnection.getSenders()
+
+           const sender = senders.find((sender) =>
+               sender.track.kind === screenSharingStream.getVideoTracks()[0].kind
+           )
+
+           if(sender){
+               sender.replaceTrack(screenSharingStream.getVideoTracks()[0])
+           }
+           store.setScreenSharingActive(!screenSharingActive)
+           ui.updateLocalVideo(screenSharingStream)
+       } catch (error) {
+           console.error('error occured when trying to get screen sharing stream', error)
+       } 
+    }
 }
