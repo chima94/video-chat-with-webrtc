@@ -14,10 +14,12 @@ const personalCodeCopyButton = document.getElementById('personal_code_copy_butto
 const personalCodeChatButton = document.getElementById('personal_code_chat_button')
 const personalCodeVideoButton = document.getElementById('personal_code_video_button')
 
+
 personalCodeCopyButton.addEventListener('click', () =>{
   const personalCode = store.getState().socketId
   navigator.clipboard && navigator.clipboard.writeText(personalCode)
 })
+
 
 personalCodeChatButton.addEventListener('click', () =>{
   console.log("chat button clicked")
@@ -35,7 +37,6 @@ personalCodeVideoButton.addEventListener('click', () =>{
 
 
 //event listner for video calls button
-
 const micButton = document.getElementById('mic_button')
 micButton.addEventListener('click', () =>{
   const localStream = store.getState().localStream
@@ -54,8 +55,32 @@ cameraButton.addEventListener('click', () =>{
 })
 
 
+
   const switchForScreenSharingButton = document.getElementById('screen_sharing_button')
   switchForScreenSharingButton.addEventListener('click', () => {
     const screenSharingActive = store.getState().screenSharingActive
     webrtcHandler.switchBetweenCameraAndScreenSharing(screenSharingActive)
+  })
+
+
+  //messenger
+  const newMessageInput = document.getElementById('new_message_input')
+  newMessageInput.addEventListener('keydown', (event) =>{
+    console.log('change occured')
+    const key = event.key
+
+    if(key === 'Enter'){
+      webrtcHandler.sendMessageUsingDataChannel(event.target.value)
+      ui.appendMessage(event.target.value, true)
+      newMessageInput.value = ""
+    }
+  })
+
+
+  const sendMessageButton = document.getElementById('send_message_button')
+  sendMessageButton.addEventListener('click', () =>{
+    const message = newMessageInput.value
+    webrtcHandler.sendMessageUsingDataChannel(message)
+    ui.appendMessage(message, true)
+    newMessageInput.value = ""
   })
