@@ -24,6 +24,8 @@ export const getLocalPreview = () =>{
     navigator.mediaDevices.getUserMedia(defaultConstraints)
         .then((stream) =>{
             ui.updateLocalVideo(stream)
+            ui.showVideoCallButtons()
+            store.setCallState(constants.callState.CALL_AVAILABLE)
             store.setLocalStream(stream)
         }).catch((err) =>{
             console.log("error occured when trying to get an access to camera")
@@ -265,4 +267,35 @@ export const switchBetweenCameraAndScreenSharing = async (screenSharingActive) =
            console.error('error occured when trying to get screen sharing stream', error)
        } 
     }
+}
+
+
+//hang up
+export const handleHangUp = () =>{
+    console.log("finishing call")
+    const data = {
+        connectedUserSocketId: connectedUserDetails.socketId
+    }
+    wss.sendUserHangedUp(data)
+    closePeerConnectionAndResetState()
+}
+
+export const handleConnectedUserHangedUp = () =>{
+    closePeerConnectionAndResetState()
+}
+
+
+const closePeerConnectionAndResetState = () =>{
+    if(peerConnection){
+        peerConnection.close()
+        peerConnection = null
+    }
+
+    if(connectedUserDetails.callType === constants.callType.VIDEO_PERSONAL_CODE){
+        store.getState().localStream.getVideoTracks()[0] = true
+        store.getState().localStream.getAudioTracks()[0] = true
+    }
+
+    ui.updateUIAfterHangUp(connectedUserDetails.callType)
+    connectedUserDetails = null
 }

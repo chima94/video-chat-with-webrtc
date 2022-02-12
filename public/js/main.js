@@ -114,3 +114,17 @@ cameraButton.addEventListener('click', () =>{
     recordingUtils.resumeRecording()
     ui.switchRecordingButtons(false)
   })
+
+
+
+  //hang up
+  const hangUpButton = document.getElementById('hang_up_button')
+  hangUpButton.addEventListener('click', () =>{
+    webrtcHandler.handleHangUp()
+  })
+
+
+  const hangUpChatButton = document.getElementById('finish_chat_call_button')
+  hangUpChatButton.addEventListener('click', () =>{
+    webrtcHandler.handleHangUp()
+  })

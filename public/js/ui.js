@@ -162,7 +162,7 @@ export const appendMessage = (message, right = false) =>{
 
 export const clearMessenger = () =>{
     const messagesContainer = document.getElementById("messages_container")
-    messagesContainer.querySelectorAll('*').forEach((n) => remove())
+    messagesContainer.querySelectorAll('*').forEach((n) => n.remove())
 }
 
 
@@ -200,6 +200,41 @@ export const switchRecordingButtons = (switchForResumeButton = false) =>{
         hideElement(resumeButton)
     }
 }
+
+
+
+export const updateUIAfterHangUp = (callType) =>{
+    enableDashboard()
+
+    if(callType === constants.callType.VIDEO_PERSONAL_CODE){
+        const callButtons = document.getElementById('call_buttons')
+        hideElement(callButtons)
+    }else{
+        const chatCallButtons = document.getElementById('finish_chat_button_container')
+        hideElement(chatCallButtons)
+    }
+
+    const newMessageInput = document.getElementById('new_message')
+    hideElement(newMessageInput)
+    clearMessenger()
+    updateMicButton(false)
+    updateCameraButton(false)
+
+    const remoteVideo = document.getElementById('remote_video')
+    hideElement(remoteVideo)
+
+    const placeholder = document.getElementById('video_placeholder')
+    showElement(placeholder)
+
+    removeAllDialog()
+}
+
+
+export const showVideoCallButtons = () =>{
+   
+
+}
+
 
 const enableDashboard = () =>{
     const dashboardBlocker = document.getElementById('dashboard_blur')

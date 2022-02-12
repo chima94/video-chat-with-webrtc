@@ -75,6 +75,20 @@ io.on("connection", (socket) => {
     }
   })
 
+
+
+  socket.on('user-hanged-up', (data) =>{
+    const {connectedUserSocketId} = data
+    const connectedPeer = connectedPeers.find(
+      (peerSocketId) => peerSocketId === connectedUserSocketId
+    )
+
+    if(connectedPeer){
+      io.to(connectedUserSocketId).emit('user-hanged-up', data)
+  }
+  })
+
+
   
 
   socket.on("disconnect", () => {
